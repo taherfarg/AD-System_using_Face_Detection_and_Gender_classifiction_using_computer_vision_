@@ -1,0 +1,9 @@
+opencv-python-headless
+tensorflow
+numpy
+ultralytics
+numpy
+opencv-python
+mediapipe
+keras
+pytorch
