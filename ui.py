@@ -64,16 +64,55 @@ class AdManagerApp:
         os.system("start http://localhost/dashboard")
 
     def upload_ad(self):
-        ad_path = filedialog.askopenfilename(filetypes=[("Video files", "*.mp4")])
-        if ad_path:
-            shutil.copy(ad_path, "AD_Videos")
-            messagebox.showinfo("Info", "Ad uploaded successfully.")
+        """Upload a new advertisement video with error handling."""
+        try:
+            ad_path = filedialog.askopenfilename(filetypes=[("Video files", "*.mp4")])
+            if ad_path:
+                if not os.path.exists(ad_path):
+                    messagebox.showerror("Error", "Selected file does not exist.")
+                    return
+
+                # Ensure AD_Videos directory exists
+                os.makedirs("AD_Videos", exist_ok=True)
+
+                filename = os.path.basename(ad_path)
+                destination = os.path.join("AD_Videos", filename)
+
+                # Check if file already exists
+                if os.path.exists(destination):
+                    response = messagebox.askyesno("File Exists",
+                        f"File {filename} already exists. Overwrite?")
+                    if not response:
+                        return
+
+                shutil.copy2(ad_path, destination)
+                messagebox.showinfo("Success", "Ad uploaded successfully.")
+        except PermissionError:
+            messagebox.showerror("Error", "Permission denied. Cannot upload file.")
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to upload ad: {str(e)}")
 
     def remove_ad(self):
-        ad_path = filedialog.askopenfilename(initialdir="AD_Videos", filetypes=[("Video files", "*.mp4")])
-        if ad_path:
-            os.remove(ad_path)
-            messagebox.showinfo("Info", "Ad removed successfully.")
+        """Remove an advertisement video with error handling."""
+        try:
+            ad_path = filedialog.askopenfilename(initialdir="AD_Videos",
+                                                filetypes=[("Video files", "*.mp4")])
+            if ad_path:
+                if not os.path.exists(ad_path):
+                    messagebox.showerror("Error", "Selected file does not exist.")
+                    return
+
+                filename = os.path.basename(ad_path)
+                response = messagebox.askyesno("Confirm Delete",
+                    f"Are you sure you want to delete {filename}?")
+
+                if response:
+                    os.remove(ad_path)
+                    messagebox.showinfo("Success", "Ad removed successfully.")
+        except PermissionError:
+            messagebox.showerror("Error", "Permission denied. Cannot delete file.")
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to remove ad: {str(e)}")
 
 if __name__ == "__main__":
     root = tk.Tk()
